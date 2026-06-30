@@ -15,7 +15,7 @@ import ChatWidget from "@/components/ChatWidget";
 
 export default function Home() {
   return (
-    <main className="relative">
+    <main className="relative overflow-x-hidden">
       <ScrollProgress />
       <Navbar />
       <Hero />
