@@ -170,19 +170,7 @@ body {
 
 
 
-/* ===== PORTFOLIO UPGRADE ADDITIONS ===== */
 
-@media (pointer: fine) {
-  html:not(.reduce-motion) * {
-    cursor: none;
-  }
-
-  html:not(.reduce-motion) input,
-  html:not(.reduce-motion) textarea,
-  html:not(.reduce-motion) [contenteditable="true"] {
-    cursor: text;
-  }
-}
 
 .headline-shimmer {
   background-image: linear-gradient(110deg,
