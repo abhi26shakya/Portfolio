@@ -19,13 +19,23 @@ type Project = {
   link: string;
 };
 
-const BG_IMAGE = "https://erdoslab.org/media/hero-poster.jpg";
+const BG_IMAGE = "/projects/work-bg.jpg";
+const BG_FALLBACK =
+  "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2400&auto=format&fit=crop";
 
 export default function Projects() {
   const targetRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [bg, setBg] = useState(BG_IMAGE);
   const [maxScroll, setMaxScroll] = useState(0);
+
+  // Swap to remote fallback if the local image is missing.
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = BG_IMAGE;
+    img.onerror = () => setBg(BG_FALLBACK);
+  }, []);
 
   // Track vertical scroll across the tall section; while it's pinned,
   // progress 0 -> 1 drives the horizontal card translation.
@@ -87,7 +97,7 @@ export default function Projects() {
         <motion.div
           aria-hidden
           initial={{ scale: 1, y: 0 }}
-          animate={{ scale: 1.05, y: -10 }}
+          animate={{ scale: 1.08, y: -14 }}
           transition={{
             duration: 40,
             ease: "easeInOut",
@@ -95,7 +105,7 @@ export default function Projects() {
             repeatType: "reverse",
           }}
           className="absolute inset-0 z-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${BG_IMAGE})` }}
+          style={{ backgroundImage: `url(${bg})` }}
         />
 
         {/* Darkening veil for legibility, tinted to your bg colour */}
@@ -104,13 +114,13 @@ export default function Projects() {
           className="absolute inset-0 z-[1]"
           style={{
             background:
-              "radial-gradient(120% 90% at 50% 28%, rgba(5,8,22,0.3) 0%, rgba(5,8,22,0.7) 60%, rgba(5,8,22,0.92) 100%)",
+              "radial-gradient(120% 90% at 50% 28%, rgba(5,8,22,0.45) 0%, rgba(5,8,22,0.82) 68%, rgba(5,8,22,0.96) 100%)",
           }}
         />
 
         <div className="relative z-10 flex h-full flex-col justify-between py-12">
           {/* Heading */}
-          <div className="mt-8 shrink-0 px-6 text-center">
+          <div className="mt-6 shrink-0 px-6 text-center">
             <span className="section-eyebrow">Builds</span>
             <h2 className="mt-3 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-medium leading-tight text-textPrimary">
               Our Work So Far
@@ -122,50 +132,54 @@ export default function Projects() {
             <motion.div
               ref={trackRef}
               style={{ x }}
-              className="flex gap-8 px-[12vw] py-4"
+              className="flex gap-8 px-[12vw]"
             >
-              {(projects as Project[]).map((project, i) => (
-                <motion.a
-                  key={project.title}
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="card-glow glass group flex min-h-[420px] w-[82vw] sm:w-[400px] shrink-0 flex-col rounded-3xl p-8 bg-slate-955/40 border border-white/10 hover:border-white/20 transition-all duration-300 relative overflow-hidden"
-                  style={{
-                    backgroundColor: "rgba(5, 8, 22, 0.45)",
-                    backdropFilter: "blur(16px)",
-                  }}
-                  whileHover={{ y: -6 }}
-                >
-                  <span className="section-eyebrow mb-5 text-accent">
-                    {String(i + 1).padStart(2, "0")} · Project
-                  </span>
+              {(projects as Project[]).map((project, i) => {
+                const active = i === activeIdx;
+                return (
+                  <motion.a
+                    key={project.title}
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="card-glow glass group flex min-h-[400px] w-[78vw] shrink-0 flex-col rounded-3xl p-8 sm:w-[380px]"
+                    animate={{
+                      y: active ? -28 : 0,
+                      scale: active ? 1 : 0.94,
+                      opacity: active ? 1 : 0.6,
+                    }}
+                    transition={{ type: "spring", stiffness: 180, damping: 24 }}
+                  >
+                    <span className="section-eyebrow mb-5">
+                      {String(i + 1).padStart(2, "0")} · Project
+                    </span>
 
-                  <h3 className="mb-4 font-display text-2xl leading-snug text-white sm:text-3xl font-medium">
-                    {project.title}
-                  </h3>
+                    <h3 className="mb-4 font-display text-2xl leading-snug text-textPrimary sm:text-3xl">
+                      {project.title}
+                    </h3>
 
-                  <p className="mb-auto text-sm leading-relaxed text-textSecondary line-clamp-5 sm:text-base">
-                    {project.description}
-                  </p>
+                    <p className="mb-auto text-sm leading-relaxed text-textSecondary line-clamp-5 sm:text-base">
+                      {project.description}
+                    </p>
 
-                  <div className="mt-6 flex flex-wrap gap-2 pt-4 border-t border-white/5">
-                    {project.tech.slice(0, 3).map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-full border border-white/5 bg-white/5 px-3 py-1 text-[11px] text-white/70"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      {project.tech.slice(0, 3).map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-full border border-textSecondary/10 bg-surface2/60 px-3 py-1.5 text-xs text-textSecondary"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
 
-                  <span className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black transition-all duration-300 hover:bg-white/90">
-                    <Github className="h-4 w-4" /> View Code
-                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </span>
-                </motion.a>
-              ))}
+                    <span className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-textPrimary/95 px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-bg transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-textPrimary">
+                      <Github className="h-4 w-4" /> View Code
+                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                  </motion.a>
+                );
+              })}
             </motion.div>
           </div>
 

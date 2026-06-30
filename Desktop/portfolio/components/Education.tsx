@@ -7,7 +7,7 @@ import { education } from "@/data/profile";
 
 export default function Education() {
   return (
-    <section id="education" className="relative py-20 px-6 bg-surface/40 overflow-hidden">
+    <section id="education" className="relative py-20 px-6 bg-surface/40">
       <div className="max-w-5xl mx-auto">
         <SectionHeading eyebrow="Foundation" title="Education" />
 
