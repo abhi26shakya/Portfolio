@@ -438,7 +438,7 @@ export default function Skills() {
   const activeSkills = skills[activeCategory as keyof typeof skills] || [];
 
   return (
-    <section id="skills" className="relative py-20 px-6 bg-bg overflow-hidden">
+    <section id="skills" className="relative py-12 px-6 bg-bg overflow-hidden">
       {/* Background theme glow */}
       <div className="absolute inset-0 pointer-events-none flex justify-center items-center opacity-10 blur-[120px] transition-all duration-700">
         <div 

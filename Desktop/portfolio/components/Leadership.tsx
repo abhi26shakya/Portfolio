@@ -20,7 +20,7 @@ export default function Leadership() {
   }, []);
 
   return (
-    <section id="leadership" className="relative py-20 px-6 overflow-hidden">
+    <section id="leadership" className="relative py-12 px-6 overflow-hidden">
       {/* Cinematic space background to match Projects */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center opacity-30"

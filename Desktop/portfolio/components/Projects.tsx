@@ -131,7 +131,7 @@ export default function Projects() {
     <section 
       id="projects" 
       ref={targetRef} 
-      className={`relative bg-bg ${isMobile ? "py-24" : "h-[300vh]"}`}
+      className={`relative bg-bg ${isMobile ? "py-12" : "h-[200vh]"}`}
     >
       {/* Pinned viewport for desktop, static flow for mobile */}
       <div className={isMobile ? "relative flex flex-col justify-between" : "sticky top-0 flex h-screen flex-col overflow-hidden"}>
