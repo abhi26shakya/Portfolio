@@ -18,7 +18,7 @@ export default function AnimatedHeadline() {
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 1.1, delay: 0.2, ease: "easeOut" }}
-      className="font-light text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem] leading-[1.15] tracking-normal max-w-4xl mx-auto headline-shimmer"
+      className="font-light text-textPrimary text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem] leading-[1.15] tracking-normal max-w-4xl mx-auto"
       style={{ fontFamily: "var(--font-cormorant)" }}
     >
       Thinking at the edge of what&#x27;s{" "}
@@ -26,15 +26,20 @@ export default function AnimatedHeadline() {
         <AnimatePresence mode="wait">
           <motion.span
             key={WORDS[i]}
-            initial={{ opacity: 0, y: "0.3em", filter: "blur(6px)" }}
+            initial={{ opacity: 0, y: "0.25em", filter: "blur(4px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: "-0.3em", filter: "blur(6px)" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="inline-block"
+            exit={{ opacity: 0, y: "-0.25em", filter: "blur(4px)" }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+            className="inline-block bg-gradient-to-r from-accent to-accent2 bg-clip-text text-transparent font-medium pb-2 pr-1"
           >
             {WORDS[i]}.
           </motion.span>
         </AnimatePresence>
+        <motion.span
+          layout
+          transition={{ type: "spring", stiffness: 200, damping: 24 }}
+          className="absolute left-0 bottom-1 h-[2px] w-[calc(100%-4px)] rounded-full bg-gradient-to-r from-accent to-accent2 shadow-[0_0_8px_rgba(56,189,248,0.4)] pointer-events-none"
+        />
       </span>
     </motion.h1>
   );
