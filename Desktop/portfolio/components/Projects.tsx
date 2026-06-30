@@ -29,6 +29,17 @@ export default function Projects() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [bg, setBg] = useState(BG_IMAGE);
   const [maxScroll, setMaxScroll] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Responsive device check
+  useEffect(() => {
+    const checkDevice = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkDevice();
+    window.addEventListener("resize", checkDevice);
+    return () => window.removeEventListener("resize", checkDevice);
+  }, []);
 
   // Swap to remote fallback if the local image is missing.
   useEffect(() => {
@@ -37,8 +48,7 @@ export default function Projects() {
     img.onerror = () => setBg(BG_FALLBACK);
   }, []);
 
-  // Track vertical scroll across the tall section; while it's pinned,
-  // progress 0 -> 1 drives the horizontal card translation.
+  // Track vertical scroll across the tall section for desktop
   const { scrollYProgress } = useScroll({
     target: targetRef,
     offset: ["start start", "end end"],
@@ -47,10 +57,10 @@ export default function Projects() {
   // Measure how far the track must travel so the last card ends fully visible.
   const measure = useCallback(() => {
     const track = trackRef.current;
-    if (!track) return;
+    if (!track || isMobile) return;
     const distance = Math.max(0, track.scrollWidth - window.innerWidth);
     setMaxScroll(distance);
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     const t = setTimeout(measure, 120);
@@ -61,38 +71,70 @@ export default function Projects() {
     };
   }, [measure]);
 
-  // Smooth the horizontal motion a touch so it feels cinematic, not rigid.
+  // Smooth the horizontal motion on desktop
   const xRaw = useTransform(scrollYProgress, [0, 1], [0, -maxScroll]);
   const x = useSpring(xRaw, { stiffness: 120, damping: 30, mass: 0.4 });
 
-  // Light up the dot for whichever card is closest to centre.
+  // Light up the dot for whichever card is closest to centre (desktop scroll-driven)
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (isMobile) return;
     const n = projects.length;
     if (n <= 1) return;
     const idx = Math.round(latest * (n - 1));
     setActiveIdx(Math.max(0, Math.min(n - 1, idx)));
   });
 
-  // Arrows nudge the page scroll to the previous / next card's progress point.
+  // Track scroll on mobile native overflow track to sync dot indicator
+  const handleMobileScroll = () => {
+    if (!isMobile) return;
+    const track = trackRef.current;
+    if (!track) return;
+    // Calculate scroll index based on card step width
+    const cardWidth = Math.min(380, window.innerWidth * 0.78);
+    const gap = 32;
+    const step = cardWidth + gap;
+    const idx = Math.round(track.scrollLeft / step);
+    setActiveIdx(Math.max(0, Math.min(projects.length - 1, idx)));
+  };
+
+  // Arrows navigation logic
   const goTo = (dir: 1 | -1) => {
-    const el = targetRef.current;
-    if (!el) return;
     const n = projects.length;
-    const next = Math.max(0, Math.min(n - 1, activeIdx + dir));
-    const rect = el.getBoundingClientRect();
-    const sectionTop = rect.top + window.scrollY;
-    const scrollable = el.offsetHeight - window.innerHeight;
-    const progress = next / (n - 1);
-    window.scrollTo({
-      top: sectionTop + progress * scrollable,
-      behavior: "smooth",
-    });
+    const nextIdx = Math.max(0, Math.min(n - 1, activeIdx + dir));
+
+    if (isMobile) {
+      const track = trackRef.current;
+      if (!track) return;
+      const cardWidth = Math.min(380, window.innerWidth * 0.78);
+      const gap = 32;
+      const step = cardWidth + gap;
+      track.scrollTo({
+        left: nextIdx * step,
+        behavior: "smooth",
+      });
+      setActiveIdx(nextIdx);
+    } else {
+      const el = targetRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const sectionTop = rect.top + window.scrollY;
+      const scrollable = el.offsetHeight - window.innerHeight;
+      const progress = nextIdx / (n - 1);
+      window.scrollTo({
+        top: sectionTop + progress * scrollable,
+        behavior: "smooth",
+      });
+    }
   };
 
   return (
-    <section id="projects" ref={targetRef} className="relative h-[300vh] bg-bg">
-      {/* Pinned viewport that holds the scene while the page scrolls through it */}
-      <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
+    <section 
+      id="projects" 
+      ref={targetRef} 
+      className={`relative bg-bg ${isMobile ? "py-24" : "h-[300vh]"}`}
+    >
+      {/* Pinned viewport for desktop, static flow for mobile */}
+      <div className={isMobile ? "relative flex flex-col justify-between" : "sticky top-0 flex h-screen flex-col overflow-hidden"}>
         {/* Cinematic background with a slow Ken-Burns drift */}
         <motion.div
           aria-hidden
@@ -127,12 +169,17 @@ export default function Projects() {
             </h2>
           </div>
 
-          {/* Horizontally translated track */}
+          {/* Horizontally translated/scrolled track */}
           <div className="flex flex-1 items-center overflow-hidden">
             <motion.div
               ref={trackRef}
-              style={{ x }}
-              className="flex gap-8 px-[12vw]"
+              style={{ x: isMobile ? 0 : x }}
+              onScroll={handleMobileScroll}
+              className={`flex gap-8 py-6 ${
+                isMobile 
+                  ? "overflow-x-auto px-[11vw] snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" 
+                  : "px-[12vw]"
+              }`}
             >
               {(projects as Project[]).map((project, i) => {
                 const active = i === activeIdx;
@@ -142,11 +189,11 @@ export default function Projects() {
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="card-glow glass group flex min-h-[400px] w-[78vw] shrink-0 flex-col rounded-3xl p-8 sm:w-[380px]"
+                    className="card-glow glass group flex min-h-[400px] w-[78vw] shrink-0 flex-col rounded-3xl p-8 sm:w-[380px] snap-center"
                     animate={{
-                      y: active ? -28 : 0,
+                      y: active ? -24 : 0,
                       scale: active ? 1 : 0.94,
-                      opacity: active ? 1 : 0.6,
+                      opacity: active ? 1 : 0.65,
                     }}
                     transition={{ type: "spring", stiffness: 180, damping: 24 }}
                   >
