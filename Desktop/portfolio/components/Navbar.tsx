@@ -32,32 +32,33 @@ export default function Navbar() {
         scrolled ? "glass py-3" : "py-6 bg-transparent"
       }`}
     >
-      <nav className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        <a
-          href="#hero"
-          className="font-display text-xl tracking-wide text-textPrimary"
-        >
-          A. K. Shakya
-        </a>
-        <ul className="hidden md:flex items-center gap-8">
-          {links.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className="text-xs uppercase tracking-widest2 text-textSecondary hover:text-accent transition-colors duration-300"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-        <a
-          href="#contact"
-          className="text-xs uppercase tracking-widest2 px-4 py-2 rounded-full border border-accent/40 text-accent hover:bg-accent/10 transition-colors duration-300"
-        >
-          Connect
-        </a>
-      </nav>
-    </motion.header>
+        <nav className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+          <a
+            href="#hero"
+            className="text-xl font-bold tracking-wide text-textPrimary neon-glow-hover"
+            style={{ fontFamily: "var(--font-cormorant)", fontStyle: "italic" }}
+          >
+            Abhishek Kumar Shakya
+          </a>
+          <ul className="hidden md:flex items-center gap-8">
+            {links.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/70 hover:text-white transition-colors duration-300"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a
+            href="#contact"
+            className="text-[10px] font-mono uppercase tracking-[0.2em] px-5 py-2.5 rounded-full border border-white/10 text-white bg-white/5 backdrop-blur-md hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+          >
+            Connect
+          </a>
+        </nav>
+      </motion.header>
   );
 }

@@ -36,7 +36,7 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="relative py-32 px-6 bg-bg overflow-hidden"
+      className="relative py-20 px-6 bg-bg overflow-hidden"
     >
       <motion.div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[40rem] h-[40rem] rounded-full bg-accent/10 blur-3xl"

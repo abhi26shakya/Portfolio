@@ -7,7 +7,7 @@ import { research } from "@/data/profile";
 
 export default function Research() {
   return (
-    <section id="research" className="relative py-32 px-6 bg-bg overflow-hidden">
+    <section id="research" className="relative py-20 px-6 bg-bg overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] rounded-full bg-accent2/10 blur-3xl pointer-events-none" />
       <div className="max-w-5xl mx-auto relative z-10">
         <SectionHeading eyebrow="Frontier" title="Research" />

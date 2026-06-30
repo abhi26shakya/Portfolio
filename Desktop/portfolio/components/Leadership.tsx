@@ -7,7 +7,7 @@ import { leadership } from "@/data/profile";
 
 export default function Leadership() {
   return (
-    <section id="leadership" className="relative py-32 px-6 bg-surface/40">
+    <section id="leadership" className="relative py-20 px-6 bg-surface/40">
       <div className="max-w-5xl mx-auto">
         <SectionHeading eyebrow="Influence" title="Leadership" />
 

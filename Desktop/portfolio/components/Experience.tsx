@@ -6,7 +6,7 @@ import { experience } from "@/data/profile";
 
 export default function Experience() {
   return (
-    <section id="experience" className="relative py-32 px-6 bg-surface/40">
+    <section id="experience" className="relative py-20 px-6 bg-surface/40">
       <div className="max-w-4xl mx-auto">
         <SectionHeading eyebrow="Trajectory" title="Experience" />
 
@@ -36,10 +36,20 @@ export default function Experience() {
                 <h3 className="font-display text-2xl sm:text-3xl mt-2 text-textPrimary">
                   {item.role}
                 </h3>
-                <p className="text-textSecondary mt-1">{item.org}</p>
-                <p className="text-textPrimary/80 mt-3 max-w-2xl leading-relaxed">
-                  {item.detail}
+                <p className="text-textSecondary mt-1">
+                  {item.org} {item.location ? `• ${item.location}` : ""}
                 </p>
+                {item.points && (
+                  <ul className="list-disc pl-5 mt-4 space-y-2 text-textPrimary/80 max-w-3xl leading-relaxed text-sm">
+                    {item.points.map((point, index) => (
+                      <li
+                        key={index}
+                        dangerouslySetInnerHTML={{ __html: point }}
+                        className="marker:text-accent"
+                      />
+                    ))}
+                  </ul>
+                )}
               </motion.div>
             ))}
           </div>

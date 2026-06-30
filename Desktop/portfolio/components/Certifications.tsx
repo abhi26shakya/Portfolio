@@ -7,7 +7,7 @@ import { certifications } from "@/data/profile";
 
 export default function Certifications() {
   return (
-    <section id="certifications" className="relative py-32 px-6 bg-surface/40">
+    <section id="certifications" className="relative py-20 px-6 bg-surface/40">
       <div className="max-w-5xl mx-auto">
         <SectionHeading eyebrow="Recognition" title="Certifications" />
 
@@ -25,14 +25,24 @@ export default function Certifications() {
               <div className="p-2.5 rounded-lg bg-accent/10 text-accent shrink-0">
                 <Award className="w-5 h-5" />
               </div>
-              <div>
+              <div className="flex-1">
                 <h3 className="font-display text-lg sm:text-xl text-textPrimary">
                   {cert.title}
                 </h3>
                 <p className="text-textSecondary text-sm mt-1">{cert.org}</p>
-                <p className="text-accent2 text-xs mt-2 tracking-wide">
+                <p className="text-accent2 text-xs mt-2 tracking-wide font-mono">
                   {cert.year}
                 </p>
+                {cert.link && (
+                  <a
+                    href={cert.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-accent hover:text-white transition-colors duration-300 mt-3"
+                  >
+                    View Certificate →
+                  </a>
+                )}
               </div>
             </motion.div>
           ))}
