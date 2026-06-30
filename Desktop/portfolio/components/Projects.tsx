@@ -2,7 +2,13 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useMotionValueEvent,
+} from "framer-motion";
 import { ArrowRight, ArrowLeft, Github } from "lucide-react";
 import { projects } from "@/data/profile";
 
@@ -24,62 +30,69 @@ export default function Projects() {
   const [bg, setBg] = useState(BG_IMAGE);
   const [maxScroll, setMaxScroll] = useState(0);
 
-  // If the local image is missing, swap to the remote fallback.
+  // Swap to remote fallback if the local image is missing.
   useEffect(() => {
-    const img = new Image();
+    const img = new window.Image();
     img.src = BG_IMAGE;
     img.onerror = () => setBg(BG_FALLBACK);
   }, []);
 
-  // Set up vertical scroll tracking
+  // Track vertical scroll across the tall section; while it's pinned,
+  // progress 0 -> 1 drives the horizontal card translation.
   const { scrollYProgress } = useScroll({
     target: targetRef,
+    offset: ["start start", "end end"],
   });
 
-  // Calculate pixel-accurate translation distance
-  useEffect(() => {
-    const updateScroll = () => {
-      const track = trackRef.current;
-      if (!track) return;
-      setMaxScroll(Math.max(0, track.scrollWidth - window.innerWidth));
-    };
-
-    // Run after a short timeout to ensure the layout has settled and track width is fully rendered
-    const timer = setTimeout(updateScroll, 100);
-    window.addEventListener("resize", updateScroll);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", updateScroll);
-    };
+  // Measure how far the track must travel so the last card ends fully visible.
+  const measure = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const distance = Math.max(0, track.scrollWidth - window.innerWidth);
+    setMaxScroll(distance);
   }, []);
 
-  const x = useTransform(scrollYProgress, [0, 1], [0, -maxScroll]);
+  useEffect(() => {
+    const t = setTimeout(measure, 120);
+    window.addEventListener("resize", measure);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", measure);
+    };
+  }, [measure]);
 
-  // Sync active dots with scroll progress
+  // Smooth the horizontal motion a touch so it feels cinematic, not rigid.
+  const xRaw = useTransform(scrollYProgress, [0, 1], [0, -maxScroll]);
+  const x = useSpring(xRaw, { stiffness: 120, damping: 30, mass: 0.4 });
+
+  // Light up the dot for whichever card is closest to centre.
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const step = 1 / (projects.length - 1);
-    const idx = Math.round(latest / step);
-    setActiveIdx(Math.max(0, Math.min(projects.length - 1, idx)));
+    const n = projects.length;
+    if (n <= 1) return;
+    const idx = Math.round(latest * (n - 1));
+    setActiveIdx(Math.max(0, Math.min(n - 1, idx)));
   });
 
-  // Smooth scroll window to active index position
-  const scrollByCard = (dir: 1 | -1) => {
-    const parent = targetRef.current;
-    if (!parent) return;
-    const parentTop = parent.getBoundingClientRect().top + window.scrollY;
-    // The sticky horizontal scroll happens over the 200vh height range (from scroll 0 to 1)
-    const scrollRange = window.innerHeight * 2;
-    const step = scrollRange / (projects.length - 1);
-    const targetIdx = Math.max(0, Math.min(projects.length - 1, activeIdx + dir));
+  // Arrows nudge the page scroll to the previous / next card's progress point.
+  const goTo = (dir: 1 | -1) => {
+    const el = targetRef.current;
+    if (!el) return;
+    const n = projects.length;
+    const next = Math.max(0, Math.min(n - 1, activeIdx + dir));
+    const rect = el.getBoundingClientRect();
+    const sectionTop = rect.top + window.scrollY;
+    const scrollable = el.offsetHeight - window.innerHeight;
+    const progress = next / (n - 1);
     window.scrollTo({
-      top: parentTop + targetIdx * step + 5, // add small offset to ensure it triggers the scroll sync reliably
+      top: sectionTop + progress * scrollable,
       behavior: "smooth",
     });
   };
 
   return (
-    <div ref={targetRef} className="relative h-[300vh] bg-bg overflow-clip">
-      <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden z-10">
+    <section id="projects" ref={targetRef} className="relative h-[300vh] bg-bg">
+      {/* Pinned viewport that holds the scene while the page scrolls through it */}
+      <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
         {/* Cinematic background with a slow Ken-Burns drift */}
         <motion.div
           aria-hidden
@@ -95,7 +108,7 @@ export default function Projects() {
           style={{ backgroundImage: `url(${bg})` }}
         />
 
-        {/* Darkening veil so cards + text stay legible, tinted to your bg */}
+        {/* Darkening veil for legibility, tinted to your bg colour */}
         <div
           aria-hidden
           className="absolute inset-0 z-[1]"
@@ -105,21 +118,21 @@ export default function Projects() {
           }}
         />
 
-        <div className="relative z-10 py-12 flex flex-col h-full justify-between">
+        <div className="relative z-10 flex h-full flex-col justify-between py-12">
           {/* Heading */}
-          <div className="mt-8 px-6 text-center shrink-0">
+          <div className="mt-6 shrink-0 px-6 text-center">
             <span className="section-eyebrow">Builds</span>
             <h2 className="mt-3 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-medium leading-tight text-textPrimary">
               Our Work So Far
             </h2>
           </div>
 
-          {/* Horizontal carousel using transformed X positioning */}
-          <div className="flex-1 flex items-center overflow-hidden">
+          {/* Horizontally translated track */}
+          <div className="flex flex-1 items-center overflow-hidden">
             <motion.div
               ref={trackRef}
-              className="flex gap-8 px-[12vw] pt-12 pb-6"
               style={{ x }}
+              className="flex gap-8 px-[12vw]"
             >
               {(projects as Project[]).map((project, i) => {
                 const active = i === activeIdx;
@@ -129,11 +142,11 @@ export default function Projects() {
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="card-glow glass group flex min-h-[380px] w-[80vw] shrink-0 flex-col rounded-3xl p-8 sm:w-[380px]"
+                    className="card-glow glass group flex min-h-[400px] w-[78vw] shrink-0 flex-col rounded-3xl p-8 sm:w-[380px]"
                     animate={{
-                      y: active ? -24 : 0,
-                      scale: active ? 1 : 0.95,
-                      opacity: active ? 1 : 0.65,
+                      y: active ? -28 : 0,
+                      scale: active ? 1 : 0.94,
+                      opacity: active ? 1 : 0.6,
                     }}
                     transition={{ type: "spring", stiffness: 180, damping: 24 }}
                   >
@@ -141,11 +154,11 @@ export default function Projects() {
                       {String(i + 1).padStart(2, "0")} · Project
                     </span>
 
-                    <h3 className="mb-4 font-display text-2xl sm:text-3xl leading-snug text-textPrimary">
+                    <h3 className="mb-4 font-display text-2xl leading-snug text-textPrimary sm:text-3xl">
                       {project.title}
                     </h3>
 
-                    <p className="mb-auto leading-relaxed text-textSecondary line-clamp-4 text-sm sm:text-base">
+                    <p className="mb-auto text-sm leading-relaxed text-textSecondary line-clamp-5 sm:text-base">
                       {project.description}
                     </p>
 
@@ -171,9 +184,9 @@ export default function Projects() {
           </div>
 
           {/* Nav arrows + progress dots */}
-          <div className="mb-6 flex items-center justify-center gap-5 shrink-0">
+          <div className="mb-4 flex shrink-0 items-center justify-center gap-5">
             <button
-              onClick={() => scrollByCard(-1)}
+              onClick={() => goTo(-1)}
               aria-label="Previous project"
               className="flex h-11 w-11 items-center justify-center rounded-full border border-textSecondary/20 bg-surface/50 text-textPrimary backdrop-blur transition-colors duration-300 hover:border-accent/50 hover:text-accent"
             >
@@ -192,7 +205,7 @@ export default function Projects() {
             </div>
 
             <button
-              onClick={() => scrollByCard(1)}
+              onClick={() => goTo(1)}
               aria-label="Next project"
               className="flex h-11 w-11 items-center justify-center rounded-full border border-textSecondary/20 bg-surface/50 text-textPrimary backdrop-blur transition-colors duration-300 hover:border-accent/50 hover:text-accent"
             >
@@ -201,6 +214,6 @@ export default function Projects() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
