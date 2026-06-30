@@ -7,7 +7,7 @@ import { certifications } from "@/data/profile";
 
 export default function Certifications() {
   return (
-    <section id="certifications" className="relative py-20 px-6 bg-surface/40">
+    <section id="certifications" className="relative py-20 px-6 bg-surface/40 overflow-hidden">
       <div className="max-w-5xl mx-auto">
         <SectionHeading eyebrow="Recognition" title="Certifications" />
 
