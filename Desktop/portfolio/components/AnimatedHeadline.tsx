@@ -18,11 +18,11 @@ export default function AnimatedHeadline() {
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 1.1, delay: 0.2, ease: "easeOut" }}
-      className="font-light text-white text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem] leading-[1.15] tracking-normal max-w-4xl mx-auto"
+      className="font-light text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem] leading-[1.15] tracking-normal max-w-4xl mx-auto headline-shimmer"
       style={{ fontFamily: "var(--font-cormorant)" }}
     >
       Thinking at the edge of what&#x27;s{" "}
-      <span className="relative inline-block text-left align-baseline ml-2 sm:ml-3 w-[145px] sm:w-[190px] md:w-[240px] lg:w-[320px]">
+      <span className="relative inline-block align-baseline ml-2 sm:ml-3">
         <AnimatePresence mode="wait">
           <motion.span
             key={WORDS[i]}
@@ -30,7 +30,7 @@ export default function AnimatedHeadline() {
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: "-0.3em", filter: "blur(6px)" }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="inline-block headline-shimmer font-semibold"
+            className="inline-block"
           >
             {WORDS[i]}.
           </motion.span>
