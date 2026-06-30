@@ -22,7 +22,7 @@ export default function AnimatedHeadline() {
       style={{ fontFamily: "var(--font-cormorant)" }}
     >
       Thinking at the edge of what&#x27;s{" "}
-      <span className="relative inline-block align-baseline ml-2 sm:ml-3">
+      <span className="relative inline-block text-left align-baseline ml-2 sm:ml-3 w-[145px] sm:w-[190px] md:w-[240px] lg:w-[320px]">
         <AnimatePresence mode="wait">
           <motion.span
             key={WORDS[i]}
