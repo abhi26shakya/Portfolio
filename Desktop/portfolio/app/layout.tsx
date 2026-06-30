@@ -3,7 +3,6 @@ declare module "*.css";
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
-import CustomCursor from "@/components/CustomCursor";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -47,7 +46,6 @@ export default function RootLayout({
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body className="font-body bg-bg text-textPrimary antialiased">
         <div className="noise-overlay" />
-        <CustomCursor />
         {children}
       </body>
     </html>
